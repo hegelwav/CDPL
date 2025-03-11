@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDPL - Protected Field Effect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Museo-Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+    .hamburger-menu {
+        position: absolute;
+        top: 40px;
+        left: 40px;
+        z-index: 2;
+    }
+
+    .menu-icon {
+        font-size: 50px;
+        cursor: pointer;
+        color: white;
+    }
+
+    .menu {
+        display: none;
+        position: absolute;
+        top: 40px;
+        left: 0;
+        background: rgba(0, 0, 0, 0.9);
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .menu a {
+        display: block;
+        color: white;
+        text-decoration: none;
+        padding: 10px 15px;
+    }
+
+    .menu a:hover {
+        background: #00ff00;
+        color: black;
+    }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+            color: white;
+            font-family: 'Museo-Sans', sans-serif;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            filter: blur(2px);
+            z-index: 0;
+        }
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1;
+        }
+        .animated-text {
+            font-size: 50px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .animated-text span {
+            margin: 0 10px;
+        }
+        #changingText {
+            font-weight: 900;
+        }
+        .cloud-text {
+            font-size: 64px;
+            font-weight: bold;
+            margin-top: 20px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .cta {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #00ff00;
+            color: black;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .cta:hover {
+            background: #00cc00;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="hamburger-menu">
+        <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">&#9776;</div>
+        <div class="menu" id="menu">
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+        </div>
+    </div>
+
+        <div class="menu" id="menu">
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+        </div>
+    </div>
+
+    <canvas id="matrixCanvas"></canvas>
+    <canvas id="explosionCanvas"></canvas>
+
+    <div class="content">
+        <div class="animated-text">
+            <span>we</span>
+            <span id="changingText">discover</span>
+        </div>
+        
+        <div id="cloudText" class="cloud-text">
+            Cloud Data Protection
+        </div>
+
+        
+    </div>
+
+    <script>
+    
+    function toggleMenu() {
+        var menu = document.getElementById('menu');
+        var menuIcon = document.getElementById('menuIcon');
+        if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+            menuIcon.innerHTML = '&#9776;'; // Hamburger icon
+        } else {
+            menu.style.display = 'block';
+            menuIcon.innerHTML = '&times;'; // X icon
+        }
+    }
+
+
+        const textArray = ["discover", "design", "deploy", "secure", "protect"];
+        let textIndex = 0;
+        const changingText = document.getElementById("changingText");
+        const cloudText = document.getElementById("cloudText");
+
+        function typeEffect(text, callback) {
+            let i = 0;
+            changingText.innerHTML = '';
+            function type() {
+                if (i < text.length) {
+                    changingText.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                } else {
+                    setTimeout(callback, text === "protect" ? 2000 : 1500);
+                }
+            }
+            type();
+        }
+
+        function showWeAreThenLogo() {
+            changingText.innerHTML = "are";
+            setTimeout(() => {
+                cloudText.style.opacity = 1;
+                setTimeout(() => {
+                    cloudText.style.opacity = 0;
+                    setTimeout(changeText, 1000);
+                }, 5000);
+            }, 1500);
+        }
+
+        function changeText() {
+            if (textIndex < textArray.length) {
+                typeEffect(textArray[textIndex], () => {
+                    textIndex++;
+                    changeText();
+                });
+            } else {
+                showWeAreThenLogo();
+                textIndex = 0;
+            }
+        }
+
+        changeText();
+
+        // Matrix effect
+        const canvas = document.getElementById("matrixCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const matrix = letters.split("");
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(0);
+        
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#00ff00";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrix[Math.floor(Math.random() * matrix.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 50);
+
+        // Explosion Effect
+        const explosionCanvas = document.getElementById("explosionCanvas");
+        const expCtx = explosionCanvas.getContext("2d");
+        explosionCanvas.width = window.innerWidth;
+        explosionCanvas.height = window.innerHeight;
+
+        let explosions = [];
+
+        function createExplosion(x, y) {
+            for (let i = 0; i < 15; i++) {
+                explosions.push({
+                    x: x,
+                    y: y,
+                    radius: Math.random() * 6 + 2,
+                    dx: (Math.random() - 0.5) * 6,
+                    dy: (Math.random() - 0.5) * 6,
+                    alpha: 1
+                });
+            }
+        }
+
+        function drawExplosions() {
+            expCtx.clearRect(0, 0, explosionCanvas.width, explosionCanvas.height);
+            for (let i = 0; i < explosions.length; i++) {
+                const ex = explosions[i];
+                expCtx.beginPath();
+                expCtx.arc(ex.x, ex.y, ex.radius, 0, Math.PI * 2);
+                expCtx.fillStyle = `rgba(255, 69, 0, ${ex.alpha})`;
+                expCtx.fill();
+                ex.x += ex.dx;
+                ex.y += ex.dy;
+                ex.alpha -= 0.02;
+            }
+            explosions = explosions.filter(ex => ex.alpha > 0);
+        }
+
+        setInterval(drawExplosions, 50);
+
+        function triggerRandomAttack() {
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight * 0.8;
+            createExplosion(x, y);
+            setTimeout(triggerRandomAttack, Math.random() * 2000 + 500);
+        }
+
+        triggerRandomAttack();
+    </script>
+</body>
+</html>
